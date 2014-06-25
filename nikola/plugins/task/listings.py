@@ -32,9 +32,14 @@ from pygments import highlight
 from pygments.lexers import get_lexer_for_filename, TextLexer
 from pygments.formatters import HtmlFormatter
 import natsort
+import re
 
 from nikola.plugin_categories import Task
 from nikola import utils
+
+
+# FIXME: (almost) duplicated with mdx_nikola.py
+CODERE = re.compile('<div class="code"><pre>(.*?)</pre></div>', flags=re.MULTILINE | re.DOTALL)
 
 
 class Listings(Task):
@@ -70,6 +75,9 @@ class Listings(Task):
                                                    linenos="table", nowrap=False,
                                                    lineanchors=utils.slugify(in_name),
                                                    anchorlinenos=True))
+                # the pygments highlighter uses <div class="codehilite"><pre>
+                # for code.  We switch it to reST's <pre class="code">.
+                code = CODERE.sub('<pre class="code literal-block">\\1</pre>', code)
                 title = os.path.basename(in_name)
             else:
                 code = ''
@@ -112,6 +120,9 @@ class Listings(Task):
 
             for k, v in self.site.GLOBAL_CONTEXT['template_hooks'].items():
                 uptodate['||template_hooks|{0}||'.format(k)] = v._items
+
+            for k in self.site._GLOBAL_CONTEXT_TRANSLATABLE:
+                uptodate[k] = self.site.GLOBAL_CONTEXT[k](kw['default_lang'])
 
             uptodate2 = uptodate.copy()
             uptodate2['f'] = files

@@ -28,7 +28,6 @@ from __future__ import print_function
 import codecs
 from io import BytesIO
 import os
-import json
 import shutil
 import subprocess
 import sys
@@ -313,9 +312,8 @@ class CommandPlugin(Command):
         return False
 
     def get_json(self, url):
-        if self.json is not None:
-            return self.json
-        if (requests is None):
-            utils.req_missing(['requests'], 'install or list available plugins')
-        data = requests.get(url).text
-        data = json.loads(data)
+        if requests is None:
+            utils.req_missing(['requests'], 'install or list available plugins', python=True, optional=False)
+        if self.json is None:
+            self.json = requests.get(url).json()
+        return self.json

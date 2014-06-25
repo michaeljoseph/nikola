@@ -30,7 +30,6 @@ import datetime
 import glob
 import json
 import mimetypes
-from operator import itemgetter
 import os
 try:
     from urlparse import urljoin
@@ -161,6 +160,9 @@ class Galleries(Task):
                         os.path.relpath(gallery, self.kw['gallery_path']), lang))
                 dst = os.path.normpath(dst)
 
+                for k in self.site._GLOBAL_CONTEXT_TRANSLATABLE:
+                    self.kw[k] = self.site.GLOBAL_CONTEXT[k](lang)
+
                 context = {}
                 context["lang"] = lang
                 if post:
@@ -194,7 +196,7 @@ class Galleries(Task):
                         ft = folder
                     folders.append((folder, ft))
 
-                context["folders"] = natsort.natsorted(folders, key=itemgetter(1))
+                context["folders"] = natsort.natsorted(folders)
                 context["crumbs"] = crumbs
                 context["permalink"] = self.site.link(
                     "gallery", os.path.basename(

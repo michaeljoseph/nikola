@@ -1,6 +1,6 @@
 .. title: The Nikola Handbook
 .. slug: handbook
-.. date: 2012/03/30 23:00
+.. date: 2012-03-30 23:00:00 UTC-03:00
 .. tags:
 .. link:
 .. description:
@@ -8,7 +8,7 @@
 The Nikola Handbook
 ===================
 
-:Version: 7.0.0-alpha
+:Version: 7.0.1
 
 .. class:: alert alert-info pull-right
 
@@ -20,7 +20,7 @@ All You Need to Know
 
 After you have Nikola `installed <#installing-nikola>`_:
 
-Create a empty site:
+Create a empty site (with a setup wizard):
     ``nikola init mysite``
 
 You can create a site with demo files in it with ``nikola init --demo mysite``
@@ -151,7 +151,7 @@ Cost and Performance
     probably serve a bazillion (technical term) pageviews from a phone using
     static sites.
 
-Lockin
+Lock-in
     On server-side blog platforms, sometimes you can't export your own data, or
     it's in strange formats you can't use in other services. I have switched
     blogging platforms from Advogato to PyCs to two homebrew systems, to Nikola,
@@ -215,8 +215,9 @@ by doing::
 Alternatively, you can install those packages one-by-one, when required (Nikola
 will tell you what packages are needed)
 
-After that, run ``nikola init --demo sitename`` and that will create a folder called
-``sitename`` containing a functional demo site.
+After that, run ``nikola init --demo sitename`` and that will run the setup
+wizard, which will create a folder called ``sitename`` containing a functional
+demo site.
 
 Nikola is packaged for some Linux distributions, you may get that instead. e.g.
 If you are running Arch Linux, there are AUR packages, available in Python 2/3
@@ -386,16 +387,17 @@ Nikola also has other commands besides ``build``::
       nikola doit_auto            automatically execute tasks when a dependency changes
       nikola dumpdb               dump dependency DB
       nikola forget               clear successful run status from internal DB
+      nikola github_deploy        deploy the site to GitHub pages
       nikola help                 show help
       nikola ignore               ignore task (skip) on subsequent runs
       nikola import_wordpress     import a WordPress dump
       nikola init                 create a Nikola site in the specified folder
       nikola install_theme        install theme into current site
       nikola list                 list tasks from dodo file
+      nikola new_page             create a new page in the site
       nikola new_post             create a new blog post or site page
       nikola orphans              list all orphans
       nikola plugin               manage plugins
-      nikola run                  run tasks
       nikola serve                start the test webserver
       nikola strace               use strace to list file_deps and targets
       nikola tabcompletion        generate script for tab-complention
@@ -407,11 +409,11 @@ Nikola also has other commands besides ``build``::
 
 The ``serve`` command starts a web server so you can see the site you are creating::
 
-    $ nikola serve
+    $ nikola serve -b
     Serving HTTP on 127.0.0.1 port 8000 ...
 
 
-After you do this, you can point your web browser to http://localhost:8000 and you should see
+After you do this, a web browser opens at http://127.0.0.1:8000/ and you should see
 the sample site. This is useful as a "preview" of your work.
 
 By default, the ``serve`` command runs the web server on port 8000 on the IP address 127.0.0.1.
@@ -457,7 +459,7 @@ The content of that file is as follows::
 
     .. title: How to make money
     .. slug: how-to-make-money
-    .. date: 2012/09/15 19:52:05
+    .. date: 2012-09-15 19:52:05 UTC
     .. tags:
     .. link:
     .. description:
@@ -532,7 +534,18 @@ to your configuration::
 
         How to make money
         how-to-make-money
-        2012/09/15 19:52:05
+        2012-09-15 19:52:05 UTC
+
+   However, starting with Nikola v7, you can now use ``.meta`` files and put
+   all metadata you want, complete with the explanations — they look just like
+   the beginning of our reST files.
+
+        .. title: How to make money
+        .. slug: how-to-make-money
+        .. date: 2012-09-15 19:52:05 UTC
+
+   Both file formats are supported; however, the new format is preferred, if
+   possible.
 
 If you are writing a multilingual site, you can also create a per-language
 post file (for example: ``how-to-make-money.es.txt`` with the default TRANSLATIONS_PATTERN, see below).
@@ -553,13 +566,13 @@ default set to::
 
 .. note:: Considered languages
 
-    nikola will only look for translation of input files for languages
+    Nikola will only look for translation of input files for languages
     specified in the TRANSLATIONS variable.
 
 You can edit these files with your favourite text editor, and once you are happy
 with the contents, generate the pages as explained in `Getting Started`_
 
-Currently supported languages are
+Currently supported languages are:
 
 * Basque
 * Bulgarian
@@ -575,14 +588,16 @@ Currently supported languages are
 * French
 * German
 * Greek
+* Hindi
 * Italian
 * Japanese
 * Norwegian Bokmål
 * Persian
 * Polish
-* Portuguese
+* Portuguese (Brasil)
 * Russian
-* Slovenian
+* Slovak
+* Slovene
 * Spanish
 * Turkish
 * Urdu
@@ -707,10 +722,10 @@ published immediately.  Posts dated in the future are *not* deployed by default
 deployed site, you can set ``DEPLOY_FUTURE = True`` in your configuration.
 Generally, you want FUTURE_IS_NOW and DEPLOY_FUTURE to be the same value.
 
-Retired Posts
-~~~~~~~~~~~~~
+Private (formerly retired) Posts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you add a "retired" tag to a post, then it will not be shown in indexes and feeds.
+If you add a "private" tag to a post, then it will not be shown in indexes and feeds.
 It *will* be compiled, and if you deploy it it *will* be made available, so it will
 not generate 404s for people who had linked to it.
 
@@ -819,11 +834,17 @@ commented.
 You surely want to edit these options::
 
     # Data about this site
-    BLOG_TITLE = "Demo Site"
-    SITE_URL = "http://getnikola.com"
+    BLOG_AUTHOR = "Your Name"  # (translatable)
+    BLOG_TITLE = "Demo Site"  # (translatable)
+    SITE_URL = "http://getnikola.com/"
     BLOG_EMAIL = "joe@demo.site"
-    BLOG_DESCRIPTION = "This is a demo site for Nikola."
+    BLOG_DESCRIPTION = "This is a demo site for Nikola."  # (translatable)
 
+Some options are demarked with a (translatable) comment above or right next to
+them.  For those options, two types of values can be provided:
+
+ * a string, which will be used for all languages
+ * a dict of language-value pairs, to have different values in each language
 
 Customizing Your Site
 ---------------------
@@ -885,7 +906,9 @@ Navigation Links
 Footer
     ``CONTENT_FOOTER`` is displayed, small at the bottom of all pages, I use it for
     the copyright notice. The default shows a text formed using ``BLOG_AUTHOR``,
-    ``BLOG_EMAIL``, the date and ``LICENSE``.
+    ``BLOG_EMAIL``, the date and ``LICENSE``.  Note you need to use
+    ``CONTENT_FOOTER_FORMATS`` instead of regular str.format or %-formatting,
+    for compatibility with the translatable settings feature.
 
 BODY_END
     This option lets you define a HTML snippet that will be added at the bottom of body.
@@ -929,8 +952,8 @@ Nikola has a built-in theme download/install mechanism to install those themes �
     $ nikola install_theme -l
     Themes:
     -------
-    base-jinja
     blogtxt
+    bootstrap3-gradients
     ⋮
     ⋮
 
@@ -985,6 +1008,34 @@ Other interesting ideas are using
 `git as a deployment mechanism <http://toroid.org/ams/git-website-howto>`_ (or any other VCS
 for that matter), using `lftp mirror <http://lftp.yar.ru/>`_ or unison, or Dropbox, or
 Ubuntu One. Any way you can think of to copy files from one place to another is good enough.
+
+Deploying to GitHub
+~~~~~~~~~~~~~~~~~~~
+
+Nikola provides a separate command ``github_deploy`` to deploy your
+site to GitHub pages.  The command builds the site, commits the
+output to a gh-pages branch and pushes the output to GitHub.
+
+The branch to use for committing the sources can be changed using the
+``GITHUB_DEPLOY_BRANCH`` option in your config.  For a
+user.github.io/organization.github.io, this MUST be set to ``master``,
+and the branch containing the sources must be changed to something
+else, like ``deploy``, using the ``GITHUB_SOURCE_BRANCH`` option.  The
+remote name to which the changes are pushed is ``origin`` by default,
+and can be changed using the ``GITHUB_REMOTE_NAME`` option.  You also,
+obviously, need to have ``git`` on your PATH, and should be able to
+push to the repository specified as the remote.
+
+This command performs the following actions, when it is run:
+
+1. Ensure that your site is a git repository, and git is on the PATH.
+2. Check for changes, and prompt the user to continue, if required.
+3. Build the site
+4. Clean any files that are "unknown" to Nikola.
+5. Create a deploy branch, if one doesn't exist.
+6. Commit the output to this branch.  (NOTE: Any untracked source
+   files, may get committed at this stage, on the wrong branch!)
+7. Push and deploy!
 
 Comments and Annotations
 ------------------------
@@ -1173,9 +1224,6 @@ optipng
 jpegoptim
    Compress JPEG files using `jpegoptim <http://www.kokkonen.net/tjko/projects.html>`_
 
-tidy
-   Apply `tidy <http://tidy.sourceforge.net/>`_ to HTML files
-
 typogrify
    Improve typography using `typogrify <https://github.com/mintchaos/typogrify>`_
 
@@ -1296,20 +1344,18 @@ To use this, you have to put your source code files inside ``listings`` or whate
 Will include the source code from ``foo.py``, highlight its syntax in python mode,
 and also create a ``listings/foo.py.html`` page and the listing will have a title linking to it.
 
-Listings support a few extra options so that you can display a fragment instead of the whole
-file in a document:
+Listings support the same options `reST includes`__ support (including
+various options for controlling which parts of the file are included), and also
+a ``linenos`` option for Sphinx compatibility.
 
-start-at
-    Takes a string, and starts displaying the code at the first line that matches it.
-start-before
-    Takes a string, and starts displaying the code right before the first line that matches it.
-end-at
-    Takes a string, and stops displaying the code at the first line that matches it.
-end-before
-    Takes a string, and stops displaying the code right before the first line that matches it.
+__ http://docutils.sourceforge.net/docs/ref/rst/directives.html#including-an-external-document-fragment
 
-If you set start-at and start-before, start-at wins. If you set end-at and end-before, end-at wins.
-If you make it so your listing ends before it starts, it's frowned upon and nothing will be shown.
+.. note::
+
+   Formerly, ``start-at`` and ``end-at`` options were supported; however,
+   they do not work anymore (since v6.1.0) and you should now use ``start-after``
+   and ``end-before``, respectively.  You can also use ``start-line`` and
+   ``end-line``.
 
 Gist
 ~~~~
